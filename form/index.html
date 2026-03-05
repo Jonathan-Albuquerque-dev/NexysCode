@@ -1,0 +1,2590 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nexys Code - Solicitar Orçamento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              nexys: {
+                bg: "#0a0d14",
+                card: "#121826",
+                cyan: "#00f0ff",
+                blue: "#0066ff",
+                text: "#e2e8f0",
+              },
+            },
+            fontFamily: {
+              sans: ["Montserrat", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        background-color: #0a0d14;
+        background-image: radial-gradient(
+          circle at 50% 0%,
+          #121826 0%,
+          #0a0d14 70%
+        );
+        min-height: 100vh;
+      }
+
+      .glow-focus:focus {
+        box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+        border-color: #00f0ff;
+      }
+
+      .radio-card input:checked + div {
+        border-color: #00f0ff;
+        background-color: rgba(0, 240, 255, 0.05);
+        box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+      }
+
+      .radio-card input:checked + div .icon-container {
+        color: #00f0ff;
+        text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+      }
+
+      .gradient-text {
+        background: linear-gradient(135deg, #ffffff 0%, #00f0ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .form-section {
+        display: none;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
+      .form-section.active {
+        display: block;
+        opacity: 1;
+        animation: fadeIn 0.5s ease forwards;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Scrollbar Personalizada para o Modal */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #0a0d14;
+        border-radius: 8px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #1f2937;
+        border-radius: 8px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #00f0ff;
+      }
+    </style>
+  </head>
+  <body class="text-nexys-text antialiased p-4 md:p-8">
+    <!-- Botão Voltar -->
+    <div class="max-w-4xl mx-auto mb-4 md:mb-0 relative z-20">
+      <button
+        onclick="window.history.back()"
+        class="text-gray-400 hover:text-nexys-cyan transition-colors flex items-center gap-2 group"
+        title="Voltar"
+      >
+        <i
+          data-lucide="arrow-left"
+          class="w-6 h-6 group-hover:-translate-x-1 transition-transform"
+        ></i>
+        <span class="font-medium text-sm">Voltar</span>
+      </button>
+    </div>
+
+    <header class="max-w-4xl mx-auto mb-10 text-center">
+      <img
+        src="Logo.jpg"
+        alt="Nexys Code"
+        class="h-24 mx-auto object-contain mb-4"
+        onerror="
+          this.style.display = 'none';
+          document.getElementById('logo-fallback').style.display = 'block';
+        "
+      />
+
+      <div id="logo-fallback" style="display: none">
+        <div class="flex justify-center">
+          <div
+            class="grid items-center gap-x-3 gap-y-1"
+            style="grid-template-columns: auto auto"
+          >
+            <i
+              data-lucide="code-2"
+              class="text-nexys-cyan w-10 h-10 sm:w-12 sm:h-12 col-start-1 row-start-1"
+              style="filter: drop-shadow(0 0 8px #00f0ff)"
+            ></i>
+            <h1
+              class="text-4xl sm:text-5xl font-extrabold tracking-widest text-white leading-none col-start-2 row-start-1"
+            >
+              NEXYS
+            </h1>
+            <div class="col-start-2 row-start-2 text-center">
+              <span
+                class="text-nexys-cyan tracking-[0.3em] font-bold text-sm sm:text-base uppercase"
+                style="text-shadow: 0 0 8px rgba(0, 240, 255, 0.8)"
+                >Code</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="mt-4 text-gray-400 max-w-xl mx-auto">
+        Transforme sua ideia em realidade. Selecione o tipo de projeto abaixo
+        para iniciarmos seu orçamento.
+      </p>
+    </header>
+
+    <main
+      class="max-w-4xl mx-auto bg-nexys-card border border-gray-800 rounded-2xl p-6 md:p-10 shadow-2xl relative overflow-hidden"
+    >
+      <div
+        class="absolute top-0 right-0 w-64 h-64 bg-nexys-blue opacity-5 rounded-full blur-3xl pointer-events-none"
+      ></div>
+      <div
+        class="absolute bottom-0 left-0 w-64 h-64 bg-nexys-cyan opacity-5 rounded-full blur-3xl pointer-events-none"
+      ></div>
+
+      <form
+        id="project-form"
+        class="relative z-10"
+        onsubmit="submitForm(event)"
+      >
+        <!-- Etapa 1: Dados Pessoais -->
+        <div class="mb-10">
+          <h2
+            class="text-xl font-bold text-white mb-6 flex items-center gap-2 border-b border-gray-800 pb-2"
+          >
+            <i data-lucide="user" class="text-nexys-cyan w-5 h-5"></i>
+            Seus Dados
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-400 mb-2"
+                >Nome Completo</label
+              >
+              <input
+                type="text"
+                name="Nome_do_Cliente"
+                required
+                class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all placeholder-gray-600"
+                placeholder="Ex: João da Silva"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-400 mb-2"
+                >E-mail</label
+              >
+              <input
+                type="email"
+                name="Email_do_Cliente"
+                required
+                class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all placeholder-gray-600"
+                placeholder="seu@email.com"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-400 mb-2"
+                >WhatsApp / Telefone</label
+              >
+              <input
+                type="tel"
+                name="Telefone_WhatsApp"
+                required
+                class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all placeholder-gray-600"
+                placeholder="(00) 00000-0000"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Etapa 2: Seleção de Serviço -->
+        <div class="mb-10">
+          <h2
+            class="text-xl font-bold text-white mb-6 flex items-center gap-2 border-b border-gray-800 pb-2"
+          >
+            <i data-lucide="layers" class="text-nexys-cyan w-5 h-5"></i>
+            O que você precisa?
+          </h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <label class="radio-card cursor-pointer relative">
+              <input
+                type="radio"
+                name="Servico_Desejado"
+                value="institucional"
+                class="sr-only"
+                onchange="changeFormType()"
+                required
+              />
+              <div
+                class="h-full border border-gray-700 rounded-xl p-6 bg-[#0a0d14] hover:border-gray-500 transition-all text-center flex flex-col items-center gap-3"
+              >
+                <div class="icon-container text-gray-500 transition-colors">
+                  <i data-lucide="layout-template" class="w-10 h-10"></i>
+                </div>
+                <h3 class="font-bold text-white">Sites Institucional</h3>
+                <p class="text-xs text-gray-400">
+                  Presença digital para sua empresa.
+                </p>
+              </div>
+            </label>
+
+            <label class="radio-card cursor-pointer relative">
+              <input
+                type="radio"
+                name="Servico_Desejado"
+                value="sistemas"
+                class="sr-only"
+                onchange="changeFormType()"
+              />
+              <div
+                class="h-full border border-gray-700 rounded-xl p-6 bg-[#0a0d14] hover:border-gray-500 transition-all text-center flex flex-col items-center gap-3"
+              >
+                <div class="icon-container text-gray-500 transition-colors">
+                  <i data-lucide="cpu" class="w-10 h-10"></i>
+                </div>
+                <h3 class="font-bold text-white">Sistemas Web</h3>
+                <p class="text-xs text-gray-400">
+                  Aplicações complexas e Dashboards.
+                </p>
+              </div>
+            </label>
+
+            <label class="radio-card cursor-pointer relative">
+              <input
+                type="radio"
+                name="Servico_Desejado"
+                value="convite"
+                class="sr-only"
+                onchange="changeFormType()"
+              />
+              <div
+                class="h-full border border-gray-700 rounded-xl p-6 bg-[#0a0d14] hover:border-gray-500 transition-all text-center flex flex-col items-center gap-3"
+              >
+                <div class="icon-container text-gray-500 transition-colors">
+                  <i data-lucide="mail-open" class="w-10 h-10"></i>
+                </div>
+                <h3 class="font-bold text-white">Web Convite</h3>
+                <p class="text-xs text-gray-400">
+                  Convites digitais interativos.
+                </p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Etapa 3: Formulários Dinâmicos -->
+
+        <!-- Form: Site Institucional -->
+        <div id="form-institucional" class="form-section mb-6">
+          <h2
+            class="text-xl font-bold text-white mb-6 flex items-center gap-2 border-b border-gray-800 pb-2"
+          >
+            <i data-lucide="file-text" class="text-nexys-cyan w-5 h-5"></i>
+            Briefing: Criação de Site
+          </h2>
+
+          <div class="space-y-8">
+            <!-- 1️⃣ SOBRE A EMPRESA -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >1</span
+                >
+                Sobre a Empresa
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Nome da empresa</label
+                  >
+                  <input
+                    type="text"
+                    name="Site_Nome_Empresa"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all"
+                    placeholder="Nome do seu negócio"
+                  />
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >O que sua empresa faz?</label
+                  >
+                  <textarea
+                    name="Site_O_Que_A_Empresa_Faz"
+                    rows="2"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all resize-none"
+                    placeholder="Descreva seus produtos ou serviços..."
+                  ></textarea>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Quem é seu público-alvo?</label
+                  >
+                  <input
+                    type="text"
+                    name="Site_Publico_Alvo"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all"
+                    placeholder="Ex: Mulheres de 20 a 40 anos, Empresas de TI, etc."
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- 2️⃣ OBJETIVO DO SITE -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >2</span
+                >
+                Objetivo do Site
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >Qual o principal objetivo do site?</label
+                  >
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Site_Objetivo"
+                        value="Apresentar a empresa"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Apresentar a empresa
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Site_Objetivo"
+                        value="Gerar contatos pelo WhatsApp"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Gerar contatos pelo WhatsApp
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Site_Objetivo"
+                        value="Gerar pedidos/orçamentos"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Gerar pedidos/orçamentos
+                    </label>
+                    <div class="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="Site_Objetivo"
+                        value="Outro"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      <input
+                        type="text"
+                        name="Site_Objetivo_Outro"
+                        class="w-full bg-[#0a0d14] border border-gray-700 rounded px-3 py-1 text-white outline-none glow-focus transition-all text-sm placeholder-gray-600 focus:border-nexys-cyan"
+                        placeholder="Outro..."
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Qual ação você quer que o visitante faça ao entrar no
+                    site?</label
+                  >
+                  <input
+                    type="text"
+                    name="Site_Acao_Esperada_Do_Visitante"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all"
+                    placeholder="Ex: Clicar no botão do WhatsApp, Preencher formulário, etc."
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- 3️⃣ ESTRUTURA -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >3</span
+                >
+                Estrutura
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >Quais páginas deseja?</label
+                  >
+                  <div class="flex flex-col gap-3">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Site_Paginas_Desejadas"
+                        value="Página única (Landing Page)"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Página única (Landing Page)
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Site_Paginas_Desejadas"
+                        value="Home + Sobre + Serviços + Contato"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Home + Sobre + Serviços + Contato
+                    </label>
+                    <div class="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="Site_Paginas_Desejadas"
+                        value="Outra"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      <input
+                        type="text"
+                        name="Site_Paginas_Desejadas_Outra"
+                        class="w-full bg-[#0a0d14] border border-gray-700 rounded px-3 py-1 text-white outline-none glow-focus transition-all text-sm placeholder-gray-600 focus:border-nexys-cyan"
+                        placeholder="Outra..."
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >O site precisará de:</label
+                  >
+                  <div class="flex flex-col gap-3">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        name="Site_Funcao_WhatsApp"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                      />
+                      Botão de WhatsApp
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        name="Site_Funcao_Formulario"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                      />
+                      Formulário de contato
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        name="Site_Funcao_Instagram"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                      />
+                      Link para Instagram
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        name="Site_Funcao_Mapa"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                      />
+                      Mapa de localização
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4️⃣ DESIGN -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >4</span
+                >
+                Design
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >Já possui logotipo?</label
+                  >
+                  <div class="flex gap-4">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Site_Possui_Logo"
+                        value="Sim"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Sim
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Site_Possui_Logo"
+                        value="Não"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Não
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Quais cores gostaria de usar?</label
+                  >
+                  <input
+                    type="text"
+                    name="Site_Cores_Desejadas"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all"
+                    placeholder="Ex: Azul e Branco, Preto e Dourado"
+                  />
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Tem algum site como referência? (opcional)</label
+                  >
+                  <input
+                    type="text"
+                    name="Site_Referencias"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all"
+                    placeholder="Cole o link do site aqui"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- 5️⃣ CONTEÚDO -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >5</span
+                >
+                Conteúdo
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >Você já possui os textos prontos?</label
+                  >
+                  <div class="flex gap-4">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Site_Possui_Textos"
+                        value="Sim"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Sim
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Site_Possui_Textos"
+                        value="Não"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Não
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >Possui fotos da empresa/produtos?</label
+                  >
+                  <div class="flex gap-4">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Site_Possui_Fotos"
+                        value="Sim"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Sim
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Site_Possui_Fotos"
+                        value="Não"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6️⃣ PRAZO -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >6</span
+                >
+                Prazo
+              </h3>
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2"
+                  >Qual o prazo desejado para entrega?</label
+                >
+                <select
+                  name="Site_Prazo_Desejado"
+                  class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all appearance-none"
+                >
+                  <option value="">Selecione...</option>
+                  <option value="Urgente (1 a 2 semanas)">
+                    Urgente (1 a 2 semanas)
+                  </option>
+                  <option value="Normal (3 a 4 semanas)">
+                    Normal (3 a 4 semanas)
+                  </option>
+                  <option value="Flexível (Mais de 1 mês)">
+                    Flexível (Mais de 1 mês)
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 7️⃣ OBSERVAÇÕES -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >7</span
+                >
+                Observações
+              </h3>
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2"
+                  >Existe alguma informação importante que eu precise
+                  saber?</label
+                >
+                <textarea
+                  name="Site_Observacoes_Finais"
+                  rows="3"
+                  class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all resize-none"
+                  placeholder="Detalhes adicionais, ideias, etc."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form: Sistemas Web -->
+        <div id="form-sistemas" class="form-section mb-6">
+          <h2
+            class="text-xl font-bold text-white mb-6 flex items-center gap-2 border-b border-gray-800 pb-2"
+          >
+            <i data-lucide="settings" class="text-nexys-cyan w-5 h-5"></i>
+            Briefing: Desenvolvimento de Sistema
+          </h2>
+
+          <div class="space-y-8">
+            <!-- 1️⃣ INFORMAÇÕES DA EMPRESA -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >1</span
+                >
+                Informações da Empresa
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Nome da empresa</label
+                  >
+                  <input
+                    type="text"
+                    name="Sistema_Nome_Empresa"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all"
+                    placeholder="Ex: Nexys Code"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Segmento de atuação</label
+                  >
+                  <input
+                    type="text"
+                    name="Sistema_Segmento"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all"
+                    placeholder="Ex: Varejo, Tecnologia, Saúde..."
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Quantas pessoas utilizarão o sistema?</label
+                  >
+                  <input
+                    type="number"
+                    name="Sistema_Quantidade_Usuarios"
+                    min="1"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all"
+                    placeholder="Ex: 5, 10, 50+"
+                  />
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >O sistema será usado em:</label
+                  >
+                  <div class="flex gap-6">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Plataforma_Uso"
+                        value="Computador"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Computador
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Plataforma_Uso"
+                        value="Celular"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Celular
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Plataforma_Uso"
+                        value="Ambos"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Ambos
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2️⃣ OBJETIVO DO SISTEMA -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >2</span
+                >
+                Objetivo do Sistema
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Qual problema você deseja resolver com o sistema?</label
+                  >
+                  <textarea
+                    name="Sistema_Problema_Para_Resolver"
+                    rows="2"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all resize-none"
+                    placeholder="Ex: Centralizar informações, evitar perdas de dados, automatizar vendas..."
+                  ></textarea>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >Hoje como esse processo é feito?</label
+                  >
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Processo_Atual"
+                        value="Planilhas"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Planilhas
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Processo_Atual"
+                        value="Papel"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Papel
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Processo_Atual"
+                        value="Outro sistema"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Outro sistema
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Processo_Atual"
+                        value="Manualmente"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Manualmente
+                    </label>
+                  </div>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Quais dificuldades você enfrenta atualmente?</label
+                  >
+                  <textarea
+                    name="Sistema_Dificuldades_Atuais"
+                    rows="2"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all resize-none"
+                    placeholder="Ex: Lerdeza, falta de controle, erros humanos..."
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3️⃣ FUNCIONALIDADES NECESSÁRIAS -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >3</span
+                >
+                Funcionalidades Necessárias
+              </h3>
+              <label class="block text-sm font-medium text-gray-400 mb-4"
+                >Marque as funcionalidades desejadas:</label
+              >
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <label
+                  class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    name="SisFunc_Cadastro_Clientes"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  Cadastro de clientes
+                </label>
+                <label
+                  class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    name="SisFunc_Cadastro_Produtos"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  Cadastro de produtos
+                </label>
+                <label
+                  class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    name="SisFunc_Controle_Estoque"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  Controle de estoque
+                </label>
+                <label
+                  class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    name="SisFunc_Gestao_Pedidos"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  Gestão de pedidos
+                </label>
+                <label
+                  class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    name="SisFunc_Controle_Financeiro"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  Controle financeiro
+                </label>
+                <label
+                  class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    name="SisFunc_Emissao_Relatorios"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  Emissão de relatórios
+                </label>
+                <label
+                  class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    name="SisFunc_Dashboard"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  Dashboard com indicadores
+                </label>
+                <label
+                  class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    name="SisFunc_Niveis_Acesso"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  Níveis de acesso (admin/func)
+                </label>
+                <label
+                  class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    name="SisFunc_Upload_Arquivos"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  Upload de arquivos
+                </label>
+                <div
+                  class="flex items-center gap-2 md:col-span-2 lg:col-span-3"
+                >
+                  <input
+                    type="checkbox"
+                    name="SisFunc_Outra_Marcada"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  <input
+                    type="text"
+                    name="SisFunc_Outra_Descricao"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded px-3 py-2 text-white outline-none glow-focus transition-all text-sm placeholder-gray-600 focus:border-nexys-cyan"
+                    placeholder="Outra funcionalidade..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- 4️⃣ ESTRUTURA E ACESSO -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >4</span
+                >
+                Estrutura e Acesso
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >Será necessário login com senha?</label
+                  >
+                  <div class="flex gap-4">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Precisa_Login"
+                        value="Sim"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Sim
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Precisa_Login"
+                        value="Não"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Não
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >Haverá diferentes tipos de usuários?</label
+                  >
+                  <div class="flex gap-4">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Diferentes_Usuarios"
+                        value="Sim"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Sim
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Diferentes_Usuarios"
+                        value="Não"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Não
+                    </label>
+                  </div>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Se sim, quais? (Ex: Gerente, Vendedor, Cliente)</label
+                  >
+                  <input
+                    type="text"
+                    name="Sistema_Quais_Usuarios"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all"
+                    placeholder="Especifique os perfis..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- 5️⃣ INTEGRAÇÕES -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >5</span
+                >
+                Integrações
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >O sistema precisará se integrar com algum outro serviço
+                    externo?</label
+                  >
+                  <div class="flex gap-6">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Possui_Integracoes"
+                        value="Sim"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Sim
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Possui_Integracoes"
+                        value="Não"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Não
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Possui_Integracoes"
+                        value="Ainda não sei"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Ainda não sei
+                    </label>
+                  </div>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Se sim, qual? (Ex: API de Pagamento, WhatsApp,
+                    Correios...)</label
+                  >
+                  <input
+                    type="text"
+                    name="Sistema_Quais_Integracoes"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all"
+                    placeholder="Descreva as integrações necessárias..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- 6️⃣ RELATÓRIOS E CONTROLE -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >6</span
+                >
+                Relatórios e Controle
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Quais relatórios são importantes para você?</label
+                  >
+                  <textarea
+                    name="Sistema_Relatorios_Importantes"
+                    rows="2"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all resize-none"
+                    placeholder="Ex: Vendas por mês, clientes inativos, produtos mais vendidos..."
+                  ></textarea>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >Precisa exportar relatórios em:</label
+                  >
+                  <div class="flex gap-6">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Exportar_Em"
+                        value="PDF"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      PDF
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Exportar_Em"
+                        value="Excel"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Excel
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Exportar_Em"
+                        value="Ambos"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Ambos
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 7️⃣ DESIGN E EXPERIÊNCIA -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >7</span
+                >
+                Design e Experiência
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >Você já possui identidade visual?</label
+                  >
+                  <div class="flex gap-4">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Identidade_Visual"
+                        value="Sim"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Sim
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Identidade_Visual"
+                        value="Não"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Não
+                    </label>
+                  </div>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >Prefere o sistema com visual mais:</label
+                  >
+                  <div class="flex gap-6">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Estilo_Visual"
+                        value="Simples e funcional"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Simples e funcional
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Estilo_Visual"
+                        value="Moderno e tecnológico"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Moderno e tecnológico
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Sistema_Estilo_Visual"
+                        value="Corporativo"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Corporativo
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 8️⃣ PRAZO E INVESTIMENTO -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >8</span
+                >
+                Prazo e Investimento
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Qual o prazo desejado para entrega?</label
+                  >
+                  <select
+                    name="Sistema_Prazo"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all appearance-none"
+                  >
+                    <option value="">Selecione...</option>
+                    <option value="Até 1 mês">Até 1 mês</option>
+                    <option value="De 2 a 3 meses">De 2 a 3 meses</option>
+                    <option value="Mais de 3 meses">Mais de 3 meses</option>
+                    <option value="Sem pressa / Flexível">
+                      Sem pressa / Flexível
+                    </option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Existe um orçamento previsto?</label
+                  >
+                  <input
+                    type="text"
+                    name="Sistema_Orcamento_Previsto"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all"
+                    placeholder="Ex: R$ 5.000,00 a R$ 10.000,00"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- 9️⃣ INFORMAÇÕES ADICIONAIS -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >9</span
+                >
+                Informações Adicionais
+              </h3>
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2"
+                  >Descreva com o máximo de detalhes como você imagina o
+                  funcionamento ideal do sistema:</label
+                >
+                <textarea
+                  name="Sistema_Funcionamento_Ideal"
+                  rows="4"
+                  class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all resize-none"
+                  placeholder="Conte-nos tudo sobre a sua ideia..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form: Web Convite -->
+        <div id="form-convite" class="form-section mb-6">
+          <h2
+            class="text-xl font-bold text-white mb-6 flex items-center gap-2 border-b border-gray-800 pb-2"
+          >
+            <i data-lucide="calendar-heart" class="text-nexys-cyan w-5 h-5"></i>
+            Briefing: Convite Digital para Evento
+          </h2>
+
+          <div class="space-y-8">
+            <!-- 1️⃣ INFORMAÇÕES PRINCIPAIS -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >1</span
+                >
+                Informações Principais
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >Tipo de evento:</label
+                  >
+                  <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Convite_Tipo_Evento"
+                        value="Aniversário"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Aniversário
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Convite_Tipo_Evento"
+                        value="Casamento"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Casamento
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Convite_Tipo_Evento"
+                        value="Formatura"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Formatura
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Convite_Tipo_Evento"
+                        value="Evento Corporativo"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Evento corporativo
+                    </label>
+                    <div class="flex items-center gap-2 md:col-span-2">
+                      <input
+                        type="radio"
+                        name="Convite_Tipo_Evento"
+                        value="Outro"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      <input
+                        type="text"
+                        name="Convite_Tipo_Evento_Outro"
+                        class="w-full bg-[#0a0d14] border border-gray-700 rounded px-3 py-1 text-white outline-none glow-focus transition-all text-sm placeholder-gray-600 focus:border-nexys-cyan"
+                        placeholder="Outro..."
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Nome ou título do evento:</label
+                  >
+                  <input
+                    type="text"
+                    name="Convite_Nome_Titulo"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all"
+                    placeholder="Ex: Casamento de João e Maria"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Data do evento:</label
+                  >
+                  <input
+                    type="date"
+                    name="Convite_Data"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all [color-scheme:dark]"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Horário:</label
+                  >
+                  <input
+                    type="time"
+                    name="Convite_Horario"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all [color-scheme:dark]"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Local do evento:</label
+                  >
+                  <input
+                    type="text"
+                    name="Convite_Local"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all"
+                    placeholder="Ex: Salão de Festas Recanto"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Endereço completo:</label
+                  >
+                  <input
+                    type="text"
+                    name="Convite_Endereco"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all"
+                    placeholder="Rua, Número, Bairro, Cidade"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- 2️⃣ ESTILO E IDENTIDADE -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >2</span
+                >
+                Estilo e Identidade
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >Qual o estilo do evento?</label
+                  >
+                  <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Convite_Estilo"
+                        value="Elegante"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Elegante
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Convite_Estilo"
+                        value="Moderno"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Moderno
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Convite_Estilo"
+                        value="Minimalista"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Minimalista
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Convite_Estilo"
+                        value="Infantil"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Infantil
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Convite_Estilo"
+                        value="Rústico"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Rústico
+                    </label>
+                    <div class="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="Convite_Estilo"
+                        value="Outro"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      <input
+                        type="text"
+                        name="Convite_Estilo_Outro"
+                        class="w-full bg-[#0a0d14] border border-gray-700 rounded px-3 py-1 text-white outline-none glow-focus transition-all text-sm placeholder-gray-600 focus:border-nexys-cyan"
+                        placeholder="Outro..."
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-2"
+                    >Cores principais do evento:</label
+                  >
+                  <input
+                    type="text"
+                    name="Convite_Cores"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all"
+                    placeholder="Ex: Dourado e Branco"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >Já possui identidade visual ou arte?</label
+                  >
+                  <div class="flex gap-4">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Convite_Tem_Identidade"
+                        value="Sim"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Sim
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Convite_Tem_Identidade"
+                        value="Não"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Não
+                    </label>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">
+                    * Se sim, enviar junto com o briefing.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3️⃣ FUNCIONALIDADES NECESSÁRIAS -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >3</span
+                >
+                Funcionalidades Necessárias
+              </h3>
+              <label class="block text-sm font-medium text-gray-400 mb-4"
+                >O convite/site precisará de:</label
+              >
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label
+                  class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    name="Conv_Func_Confirmar_Presenca"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  Confirmação de presença (RSVP)
+                </label>
+                <label
+                  class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    name="Conv_Func_Contador"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  Contador regressivo
+                </label>
+                <label
+                  class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    name="Conv_Func_Mapa"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  Mapa com localização
+                </label>
+                <label
+                  class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    name="Conv_Func_Lista_Presentes"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  Lista de presentes
+                </label>
+                <label
+                  class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    name="Conv_Func_Galeria_Fotos"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  Galeria de fotos
+                </label>
+                <label
+                  class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    name="Conv_Func_Area_Mensagem"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  Área para mensagem aos convidados
+                </label>
+                <label
+                  class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    name="Conv_Func_WhatsApp"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  Link para WhatsApp
+                </label>
+                <div class="flex items-center gap-2 md:col-span-2">
+                  <input
+                    type="checkbox"
+                    name="Conv_Func_Outra_Marcada"
+                    class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded"
+                  />
+                  <input
+                    type="text"
+                    name="Conv_Func_Outra_Desc"
+                    class="w-full bg-[#0a0d14] border border-gray-700 rounded px-3 py-2 text-white outline-none glow-focus transition-all text-sm placeholder-gray-600 focus:border-nexys-cyan"
+                    placeholder="Outra funcionalidade..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- 4️⃣ INFORMAÇÕES IMPORTANTES -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >4</span
+                >
+                Informações Importantes
+              </h3>
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2"
+                  >Existe alguma regra ou observação importante?</label
+                >
+                <textarea
+                  name="Convite_Regras_Observacoes"
+                  rows="2"
+                  class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all resize-none"
+                  placeholder="Ex: traje obrigatório, evento só para adultos, horário limite, etc."
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- 5️⃣ CONTEÚDO -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >5</span
+                >
+                Conteúdo
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >Já possui o texto que deseja colocar?</label
+                  >
+                  <div class="flex gap-4">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Convite_Possui_Texto"
+                        value="Sim"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Sim
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Convite_Possui_Texto"
+                        value="Não"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Não
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-400 mb-3"
+                    >Possui fotos para utilizar?</label
+                  >
+                  <div class="flex gap-4">
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Convite_Possui_Fotos"
+                        value="Sim"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Sim
+                    </label>
+                    <label
+                      class="flex items-center gap-2 cursor-pointer text-sm text-gray-300 hover:text-white transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="Convite_Possui_Fotos"
+                        value="Não"
+                        class="w-4 h-4 accent-nexys-cyan bg-[#0a0d14] border-gray-700"
+                      />
+                      Não
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6️⃣ PRAZO -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >6</span
+                >
+                Prazo
+              </h3>
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2"
+                  >Qual o prazo máximo para entrega?</label
+                >
+                <input
+                  type="text"
+                  name="Convite_Prazo"
+                  class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all"
+                  placeholder="Ex: Até o dia 20, daqui a 1 semana..."
+                />
+              </div>
+            </div>
+
+            <!-- 7️⃣ OBSERVAÇÕES FINAIS -->
+            <div>
+              <h3
+                class="text-lg font-semibold text-nexys-cyan mb-4 flex items-center gap-2"
+              >
+                <span
+                  class="bg-nexys-cyan/10 text-nexys-cyan px-2 py-1 rounded text-sm"
+                  >7</span
+                >
+                Observações Finais
+              </h3>
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2"
+                  >Descreva como você imagina o convite/site ideal:</label
+                >
+                <textarea
+                  name="Convite_Descricao_Ideal"
+                  rows="3"
+                  class="w-full bg-[#0a0d14] border border-gray-700 rounded-lg px-4 py-3 text-white outline-none glow-focus transition-all resize-none"
+                  placeholder="Conte-nos os detalhes finais e ideias de como gostaria que ficasse..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checkbox de Aceite do Contrato -->
+        <div
+          class="mb-6 flex items-start gap-3 border-t border-gray-800 pt-8 mt-4"
+        >
+          <input
+            type="checkbox"
+            id="aceite_contrato"
+            name="Aceite_do_Contrato"
+            required
+            class="mt-1 w-5 h-5 accent-nexys-cyan bg-[#0a0d14] border-gray-700 rounded cursor-pointer"
+          />
+          <label
+            for="aceite_contrato"
+            class="text-sm text-gray-400 cursor-pointer select-none"
+          >
+            Declaro que li e concordo com o
+            <button
+              type="button"
+              onclick="openModal()"
+              class="text-nexys-cyan hover:text-white underline transition-colors font-medium"
+            >
+              Contrato de Prestação de Serviços
+            </button>
+            da Nexys Code.
+          </label>
+        </div>
+
+        <!-- Botão Submit -->
+        <div class="pt-2 text-center">
+          <button
+            type="submit"
+            id="submit-btn"
+            class="bg-gradient-to-r from-nexys-blue to-nexys-cyan text-white font-bold py-4 px-10 rounded-lg w-full md:w-auto hover:scale-105 transition-transform duration-300 shadow-[0_0_20px_rgba(0,240,255,0.4)] flex items-center justify-center gap-2 mx-auto"
+          >
+            <span>Solicitar Orçamento</span>
+            <i data-lucide="send" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Mensagem de Sucesso (Oculta por padrão) -->
+        <div
+          id="success-message"
+          class="hidden mt-6 bg-[#0a0d14] border border-[#00f0ff] p-6 rounded-lg text-center shadow-[0_0_15px_rgba(0,240,255,0.2)]"
+        >
+          <i
+            data-lucide="check-circle"
+            class="w-12 h-12 text-[#00f0ff] mx-auto mb-3"
+          ></i>
+          <h3 class="text-xl font-bold text-white mb-2">
+            Solicitação Enviada!
+          </h3>
+          <p class="text-gray-400 text-sm">
+            A equipe da
+            <strong class="text-[#00f0ff]">Nexys Code</strong> entrará em
+            contato em breve para detalhar o seu projeto.
+          </p>
+          <button
+            type="button"
+            onclick="resetForm()"
+            class="mt-4 text-sm text-gray-400 hover:text-white underline"
+          >
+            Fazer nova solicitação
+          </button>
+        </div>
+      </form>
+    </main>
+
+    <footer class="text-center text-gray-600 text-sm mt-10 pb-10">
+      &copy; 2026 Nexys Code. Todos os direitos reservados.
+    </footer>
+
+    <!-- MODAL DO CONTRATO -->
+    <div
+      id="contract-modal"
+      class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4"
+    >
+      <!-- Fundo Escuro com Blur -->
+      <div
+        class="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        onclick="closeModal()"
+      ></div>
+
+      <!-- Conteúdo do Modal -->
+      <div
+        class="relative w-full max-w-3xl max-h-[90vh] bg-nexys-card border border-[#00f0ff]/30 rounded-2xl shadow-[0_0_40px_rgba(0,240,255,0.15)] flex flex-col overflow-hidden transform transition-all"
+      >
+        <!-- Cabeçalho -->
+        <div
+          class="flex justify-between items-center p-6 border-b border-gray-800 bg-[#0a0d14]"
+        >
+          <h2
+            class="text-xl md:text-2xl font-bold text-white flex items-center gap-3"
+          >
+            <i data-lucide="file-signature" class="text-nexys-cyan w-6 h-6"></i>
+            Contrato de Prestação de Serviços
+          </h2>
+          <button
+            onclick="closeModal()"
+            class="text-gray-400 hover:text-white transition-colors bg-gray-800/50 hover:bg-gray-800 p-2 rounded-lg"
+          >
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Corpo (Rolável) -->
+        <div
+          class="p-6 md:p-8 overflow-y-auto custom-scrollbar text-gray-300 text-sm leading-relaxed space-y-6"
+        >
+          <div>
+            <h4
+              class="font-bold text-white text-base mb-2 border-b border-gray-800 pb-1"
+            >
+              CLÁUSULA 1 – DO OBJETO
+            </h4>
+            <p class="mb-2">
+              <strong class="text-nexys-cyan">1.1</strong> O presente contrato
+              tem como objeto a prestação de serviços especializados em
+              desenvolvimento de soluções digitais, podendo compreender:
+            </p>
+            <ul class="list-disc list-inside space-y-1 ml-2 text-gray-400">
+              <li>Criação de Site Institucional;</li>
+              <li>Desenvolvimento de Sistema Web;</li>
+              <li>Landing Page;</li>
+              <li>Plataforma personalizada;</li>
+              <li>Convite Digital;</li>
+              <li>Outras soluções tecnológicas conforme proposta aprovada.</li>
+            </ul>
+            <p class="mt-2">
+              <strong class="text-nexys-cyan">1.2</strong> O escopo detalhado,
+              funcionalidades, tecnologias utilizadas, integrações e demais
+              especificações constarão em proposta comercial previamente
+              aprovada pelo CONTRATANTE, que passa a integrar este contrato.
+            </p>
+          </div>
+
+          <div>
+            <h4
+              class="font-bold text-white text-base mb-2 border-b border-gray-800 pb-1"
+            >
+              CLÁUSULA 2 – DO PRAZO
+            </h4>
+            <p class="mb-2">
+              <strong class="text-nexys-cyan">2.1</strong> O prazo de
+              desenvolvimento será de ______ dias úteis, contados a partir:
+            </p>
+            <ul class="list-disc list-inside space-y-1 ml-2 text-gray-400">
+              <li>Do pagamento inicial acordado;</li>
+              <li>
+                Do envio completo de todas as informações e materiais
+                necessários.
+              </li>
+            </ul>
+            <p class="mt-2">
+              <strong class="text-nexys-cyan">2.2</strong> Caso o CONTRATANTE
+              atrase o envio de conteúdos, acessos ou informações, o prazo será
+              automaticamente prorrogado.
+            </p>
+          </div>
+
+          <div>
+            <h4
+              class="font-bold text-white text-base mb-2 border-b border-gray-800 pb-1"
+            >
+              CLÁUSULA 3 – DO VALOR E PAGAMENTO
+            </h4>
+            <p>
+              <strong class="text-nexys-cyan">3.1</strong> O valor total do
+              presente contrato é de R$ ____________.
+            </p>
+            <p class="mt-2 mb-1">
+              <strong class="text-nexys-cyan">3.2</strong> Forma de pagamento:
+            </p>
+            <ul class="space-y-1 ml-2 text-gray-400">
+              <li>( ) À vista</li>
+              <li>( ) Parcelado em ____ vezes</li>
+              <li>( ) Entrada de ___% + ___% na entrega</li>
+            </ul>
+            <p class="mt-2 mb-1">
+              <strong class="text-nexys-cyan">3.3</strong> Em caso de atraso no
+              pagamento:
+            </p>
+            <ul class="list-disc list-inside space-y-1 ml-2 text-gray-400">
+              <li>Poderá haver suspensão do projeto;</li>
+              <li>Incidirá multa de 2% sobre o valor devido;</li>
+              <li>Juros de 1% ao mês;</li>
+              <li>Correção monetária.</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4
+              class="font-bold text-white text-base mb-2 border-b border-gray-800 pb-1"
+            >
+              CLÁUSULA 4 – DAS OBRIGAÇÕES DA CONTRATADA
+            </h4>
+            <p class="mb-2">A CONTRATADA compromete-se a:</p>
+            <ul class="space-y-1 ml-2 text-gray-400">
+              <li>
+                <strong>a)</strong> Executar o projeto conforme escopo aprovado;
+              </li>
+              <li>
+                <strong>b)</strong> Realizar testes técnicos antes da entrega;
+              </li>
+              <li><strong>c)</strong> Entregar o sistema/site funcional;</li>
+              <li>
+                <strong>d)</strong> Corrigir erros técnicos (bugs) identificados
+                após a entrega;
+              </li>
+              <li>
+                <strong>e)</strong> Manter sigilo sobre informações estratégicas
+                do CONTRATANTE.
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4
+              class="font-bold text-white text-base mb-2 border-b border-gray-800 pb-1"
+            >
+              CLÁUSULA 5 – DAS OBRIGAÇÕES DO CONTRATANTE
+            </h4>
+            <p class="mb-2">O CONTRATANTE compromete-se a:</p>
+            <ul class="space-y-1 ml-2 text-gray-400">
+              <li>
+                <strong>a)</strong> Fornecer todas as informações necessárias;
+              </li>
+              <li>
+                <strong>b)</strong> Realizar pagamentos nas datas acordadas;
+              </li>
+              <li>
+                <strong>c)</strong> Validar etapas do projeto quando solicitado;
+              </li>
+              <li>
+                <strong>d)</strong> Não realizar alterações técnicas por
+                terceiros sem autorização.
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4
+              class="font-bold text-white text-base mb-2 border-b border-gray-800 pb-1"
+            >
+              CLÁUSULA 6 – DA MANUTENÇÃO E SUPORTE
+            </h4>
+            <p class="font-bold text-gray-200">
+              <strong class="text-nexys-cyan">6.1</strong> Correção de Erros
+              (Bugs)
+            </p>
+            <p class="mb-2">
+              A CONTRATADA fornecerá manutenção gratuita por prazo indeterminado
+              exclusivamente para correção de erros técnicos ou falhas de
+              funcionamento relacionadas ao escopo original do projeto.
+            </p>
+            <p class="font-bold text-gray-400 mt-2">
+              <strong class="text-nexys-cyan">6.1.1</strong> Não serão
+              considerados bugs:
+            </p>
+            <ul class="list-disc list-inside space-y-1 ml-2 text-gray-400 mb-4">
+              <li>Solicitações de melhoria;</li>
+              <li>Alterações de layout;</li>
+              <li>Inclusão de novas funcionalidades;</li>
+              <li>Atualizações estruturais.</li>
+            </ul>
+            <p class="font-bold text-gray-200">
+              <strong class="text-nexys-cyan">6.2</strong> Alterações e
+              Implementações Futuras
+            </p>
+            <p class="mb-2">Qualquer solicitação que envolva:</p>
+            <ul class="list-disc list-inside space-y-1 ml-2 text-gray-400 mb-2">
+              <li>Inclusão de novas funcionalidades;</li>
+              <li>Mudanças estruturais;</li>
+              <li>Integrações adicionais;</li>
+              <li>Alterações de design;</li>
+              <li>Atualizações evolutivas;</li>
+            </ul>
+            <p>
+              Será considerada novo serviço, mediante orçamento previamente
+              aprovado.
+            </p>
+          </div>
+
+          <div>
+            <h4
+              class="font-bold text-white text-base mb-2 border-b border-gray-800 pb-1"
+            >
+              CLÁUSULA 7 – DA HOSPEDAGEM, DOMÍNIO E SERVIÇOS DE TERCEIROS
+            </h4>
+            <p class="mb-2">
+              <strong class="text-nexys-cyan">7.1</strong> Custos de hospedagem,
+              domínio, certificados SSL e serviços externos são de
+              responsabilidade do CONTRATANTE, salvo acordo diverso.
+            </p>
+            <p class="mb-2">
+              <strong class="text-nexys-cyan">7.2</strong> A CONTRATADA não se
+              responsabiliza por:
+            </p>
+            <ul class="list-disc list-inside space-y-1 ml-2 text-gray-400">
+              <li>Instabilidades de servidor;</li>
+              <li>Falhas de provedores;</li>
+              <li>Mudanças em APIs externas;</li>
+              <li>Suspensão de serviços de terceiros.</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4
+              class="font-bold text-white text-base mb-2 border-b border-gray-800 pb-1"
+            >
+              CLÁUSULA 8 – DA PROPRIEDADE INTELECTUAL
+            </h4>
+            <p class="mb-2">
+              <strong class="text-nexys-cyan">8.1</strong> Após quitação
+              integral do contrato, o CONTRATANTE terá direito de uso da solução
+              desenvolvida.
+            </p>
+            <p class="mb-2">
+              <strong class="text-nexys-cyan">8.2</strong> O código-fonte poderá
+              ser disponibilizado mediante acordo específico.
+            </p>
+            <p class="mb-2">
+              <strong class="text-nexys-cyan">8.3</strong> A CONTRATADA mantém o
+              direito de:
+            </p>
+            <ul class="list-disc list-inside space-y-1 ml-2 text-gray-400">
+              <li>Utilizar o projeto em portfólio;</li>
+              <li>
+                Aplicar conhecimentos técnicos adquiridos em outros projetos.
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4
+              class="font-bold text-white text-base mb-2 border-b border-gray-800 pb-1"
+            >
+              CLÁUSULA 9 – DA PROTEÇÃO DE DADOS (LGPD)
+            </h4>
+            <p class="mb-2">
+              <strong class="text-nexys-cyan">9.1</strong> Caso o sistema
+              envolva tratamento de dados pessoais, o CONTRATANTE declara estar
+              ciente da necessidade de cumprimento da Lei nº 13.709/2018 (LGPD).
+            </p>
+            <p>
+              <strong class="text-nexys-cyan">9.2</strong> A responsabilidade
+              pelo uso correto dos dados coletados é exclusivamente do
+              CONTRATANTE.
+            </p>
+          </div>
+
+          <div>
+            <h4
+              class="font-bold text-white text-base mb-2 border-b border-gray-800 pb-1"
+            >
+              CLÁUSULA 10 – DA LIMITAÇÃO DE RESPONSABILIDADE
+            </h4>
+            <p class="mb-2">
+              <strong class="text-nexys-cyan">10.1</strong> A CONTRATADA não
+              será responsável por:
+            </p>
+            <ul class="list-disc list-inside space-y-1 ml-2 text-gray-400">
+              <li>Danos indiretos ou lucros cessantes;</li>
+              <li>Perda de dados causada por terceiros;</li>
+              <li>Ataques cibernéticos;</li>
+              <li>Uso inadequado da plataforma.</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4
+              class="font-bold text-white text-base mb-2 border-b border-gray-800 pb-1"
+            >
+              CLÁUSULA 11 – DA RESCISÃO E MULTA
+            </h4>
+            <p class="mb-2">
+              <strong class="text-nexys-cyan">11.1</strong> O presente contrato
+              poderá ser rescindido por qualquer das partes mediante notificação
+              formal.
+            </p>
+            <p class="mb-2">
+              <strong class="text-nexys-cyan">11.2</strong> Em caso de rescisão
+              por iniciativa do CONTRATANTE:
+            </p>
+            <ul class="list-disc list-inside space-y-1 ml-2 text-gray-400 mb-2">
+              <li>
+                Será aplicada multa compensatória equivalente a 10% do valor
+                total do contrato;
+              </li>
+              <li>
+                Além da multa, será devido o pagamento proporcional aos serviços
+                já executados até a data da rescisão;
+              </li>
+              <li>Valores pagos anteriormente não serão reembolsados.</li>
+            </ul>
+            <p class="mb-2">
+              <strong class="text-nexys-cyan">11.3</strong> Em caso de rescisão
+              por inadimplência do CONTRATANTE, a CONTRATADA poderá:
+            </p>
+            <ul class="list-disc list-inside space-y-1 ml-2 text-gray-400">
+              <li>Suspender o acesso ao sistema;</li>
+              <li>Retirar o site do ar;</li>
+              <li>
+                Encerrar definitivamente o serviço após 15 dias de notificação.
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4
+              class="font-bold text-white text-base mb-2 border-b border-gray-800 pb-1"
+            >
+              CLÁUSULA 12 – DO ACEITE E ENTREGA
+            </h4>
+            <p class="mb-2">
+              <strong class="text-nexys-cyan">12.1</strong> Após a entrega, o
+              CONTRATANTE terá prazo de 5 dias úteis para relatar eventuais
+              ajustes.
+            </p>
+            <p>
+              <strong class="text-nexys-cyan">12.2</strong> Na ausência de
+              manifestação, o projeto será considerado formalmente aceito.
+            </p>
+          </div>
+        </div>
+
+        <!-- Rodapé do Modal -->
+        <div
+          class="p-4 md:p-6 border-t border-gray-800 bg-[#0a0d14] flex justify-end"
+        >
+          <button
+            type="button"
+            onclick="closeModalAndCheck()"
+            class="bg-nexys-cyan hover:bg-white text-black font-bold py-3 px-8 rounded-lg transition-colors shadow-[0_0_15px_rgba(0,240,255,0.4)] hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]"
+          >
+            Li e Concordo
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      lucide.createIcons();
+
+      // Funções do Modal
+      function openModal() {
+        const modal = document.getElementById("contract-modal");
+        modal.classList.remove("hidden");
+        // Pequeno delay para a transição de opacidade funcionar após remover o hidden
+        setTimeout(() => {
+          modal.classList.remove("opacity-0");
+        }, 10);
+        document.body.style.overflow = "hidden"; // Evita scroll do fundo
+      }
+
+      function closeModal() {
+        const modal = document.getElementById("contract-modal");
+        modal.classList.add("opacity-0");
+        setTimeout(() => {
+          modal.classList.add("hidden");
+        }, 300);
+        document.body.style.overflow = ""; // Restaura scroll do fundo
+      }
+
+      function closeModalAndCheck() {
+        closeModal();
+        // Marca o checkbox automaticamente quando o cliente clica em "Li e Concordo" dentro do modal
+        document.getElementById("aceite_contrato").checked = true;
+      }
+
+      // Lógica dos formulários
+      function changeFormType() {
+        const sections = document.querySelectorAll(".form-section");
+        sections.forEach((sec) => {
+          sec.classList.remove("active");
+          const inputs = sec.querySelectorAll("input, select, textarea");
+          inputs.forEach((input) => {
+            if (input.type !== "checkbox") input.removeAttribute("required");
+          });
+        });
+
+        const selectedType = document.querySelector(
+          'input[name="Servico_Desejado"]:checked',
+        ).value;
+
+        if (selectedType) {
+          const activeSection = document.getElementById(`form-${selectedType}`);
+          activeSection.classList.add("active");
+
+          // Exemplo: tornar campos iniciais obrigatórios na seção ativa
+          if (selectedType === "institucional") {
+            activeSection
+              .querySelector('input[name="Site_Nome_Empresa"]')
+              .setAttribute("required", "true");
+          } else if (selectedType === "sistemas") {
+            activeSection
+              .querySelector('input[name="Sistema_Nome_Empresa"]')
+              .setAttribute("required", "true");
+          } else if (selectedType === "convite") {
+            activeSection
+              .querySelector('input[name="Convite_Nome_Titulo"]')
+              .setAttribute("required", "true");
+          }
+        }
+      }
+
+      function submitForm(event) {
+        event.preventDefault();
+
+        const selectedType = document.querySelector(
+          'input[name="Servico_Desejado"]:checked',
+        );
+        if (!selectedType) {
+          alert(
+            "Por favor, selecione qual o tipo do seu projeto (Sites, Sistemas ou Convite).",
+          );
+          return;
+        }
+
+        // Verifica se o contrato foi aceito
+        if (!document.getElementById("aceite_contrato").checked) {
+          alert(
+            "Você precisa ler e concordar com o Contrato de Prestação de Serviços antes de enviar.",
+          );
+          return;
+        }
+
+        const btn = document.getElementById("submit-btn");
+        const originalContent = btn.innerHTML;
+        btn.innerHTML =
+          '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Enviando...';
+        lucide.createIcons();
+        btn.classList.add("opacity-70", "cursor-not-allowed");
+
+        // Montar os dados limpos para enviar por email
+        let formDataObj = {
+          _subject:
+            "Novo Orçamento Nexys: " +
+            selectedType.nextElementSibling.querySelector("h3").innerText,
+          _template: "table",
+        };
+
+        const allInputs = document.querySelectorAll("input, select, textarea");
+        allInputs.forEach((el) => {
+          const section = el.closest(".form-section");
+          if (section && !section.classList.contains("active")) return;
+
+          if (!el.name) return;
+
+          if (el.type === "radio" && !el.checked) return;
+
+          if (el.type === "checkbox") {
+            if (el.checked) formDataObj[el.name] = "Sim";
+            return;
+          }
+
+          if (el.value.trim() !== "") {
+            if (el.name === "Servico_Desejado") {
+              formDataObj[el.name] =
+                selectedType.nextElementSibling.querySelector("h3").innerText;
+            } else {
+              formDataObj[el.name] = el.value;
+            }
+          }
+        });
+
+        // Requisição AJAX para o FormSubmit
+        fetch("https://formsubmit.co/ajax/carlosjonathan150@gmail.com", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(formDataObj),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Esconde as etapas do formulário
+            document
+              .getElementById("project-form")
+              .querySelectorAll(".mb-10")
+              .forEach((el) => (el.style.display = "none"));
+            document
+              .getElementById("project-form")
+              .querySelectorAll(".mb-6")
+              .forEach((el) => (el.style.display = "none"));
+            document
+              .getElementById("project-form")
+              .querySelector(".border-t").style.display = "none"; // div do checkbox
+
+            btn.style.display = "none";
+
+            document
+              .getElementById("success-message")
+              .classList.remove("hidden");
+            document.getElementById("success-message").classList.add("block");
+          })
+          .catch((error) => {
+            console.error("Erro no envio:", error);
+            alert("Houve um problema de conexão. Por favor, tente novamente.");
+            btn.innerHTML = originalContent;
+            btn.classList.remove("opacity-70", "cursor-not-allowed");
+            lucide.createIcons();
+          });
+      }
+
+      function resetForm() {
+        document.getElementById("project-form").reset();
+
+        document
+          .getElementById("project-form")
+          .querySelectorAll(".mb-10")
+          .forEach((el) => (el.style.display = "block"));
+        document
+          .getElementById("project-form")
+          .querySelectorAll(".mb-6")
+          .forEach((el) => (el.style.display = "block"));
+        document
+          .getElementById("project-form")
+          .querySelector(".border-t").style.display = "flex"; // div do checkbox
+
+        const btn = document.getElementById("submit-btn");
+        btn.style.display = "flex";
+        btn.innerHTML =
+          '<span>Solicitar Orçamento</span><i data-lucide="send" class="w-5 h-5"></i>';
+        btn.classList.remove("opacity-70", "cursor-not-allowed");
+        lucide.createIcons();
+
+        document.getElementById("success-message").classList.add("hidden");
+        document.getElementById("success-message").classList.remove("block");
+
+        const sections = document.querySelectorAll(".form-section");
+        sections.forEach((sec) => sec.classList.remove("active"));
+      }
+    </script>
+  </body>
+</html>

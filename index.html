@@ -1,0 +1,1389 @@
+<!doctype html>
+<html lang="pt-PT">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nexys Code | Soluções Digitais</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS (via CDN para uso sem build) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+      /* Rolagem suave para os links âncora */
+      html {
+        scroll-behavior: smooth;
+      }
+
+      /* Ocultar barra de rolagem horizontal se algo ultrapassar a tela */
+      body {
+        overflow-x: hidden;
+      }
+
+      /* Esconder barra de rolagem nativa para o carrossel */
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen bg-[#070b14] text-slate-300 font-sans selection:bg-cyan-500 selection:text-white"
+  >
+    <!-- EFEITOS DE BRILHO NO FUNDO -->
+    <div
+      class="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-900/20 blur-[120px] pointer-events-none"
+    ></div>
+    <div
+      class="fixed bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-900/10 blur-[120px] pointer-events-none"
+    ></div>
+
+    <!-- CABEÇALHO / BARRA DE NAVEGAÇÃO -->
+    <header
+      id="main-header"
+      class="fixed top-0 w-full z-[60] transition-all duration-300 bg-transparent py-6"
+    >
+      <div
+        class="container mx-auto px-6 md:px-12 flex justify-between lg:justify-center lg:gap-24 xl:gap-40 items-center relative z-[60]"
+      >
+        <!-- Logotipo -->
+        <div class="flex items-center gap-2 shrink-0">
+          <div class="relative group">
+            <img
+              src="Logo.jpg"
+              alt="Logo Nexys Code"
+              class="h-10 md:h-12 object-contain hidden md:block"
+              onerror="
+                this.style.display = 'none';
+                document.getElementById('fallback-logo').style.display = 'flex';
+              "
+            />
+            <!-- Logo de fallback caso a imagem falhe -->
+            <div
+              id="fallback-logo"
+              class="flex-col items-center justify-center hidden"
+              style="display: none"
+            >
+              <div
+                class="text-2xl font-black tracking-widest text-white flex items-center gap-1"
+              >
+                <i data-lucide="code-2" class="text-cyan-400 w-8 h-8"></i>
+                NEXYS
+              </div>
+              <div
+                class="text-[0.65rem] tracking-[0.3em] text-cyan-400 font-bold flex items-center gap-2"
+              >
+                <span class="w-4 h-[1px] bg-cyan-800"></span>
+                CODE
+                <span class="w-4 h-[1px] bg-cyan-800"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navegação Desktop (Escondida em mobile e tablets, visível apenas em telas lg) -->
+        <nav class="hidden lg:flex items-center gap-8 font-medium text-sm">
+          <a
+            href="#home"
+            class="text-white hover:text-cyan-400 transition-colors"
+            >Início</a
+          >
+          <a
+            href="#services"
+            class="text-slate-300 hover:text-cyan-400 transition-colors"
+            >Serviços</a
+          >
+          <a
+            href="#about"
+            class="text-slate-300 hover:text-cyan-400 transition-colors"
+            >Sobre Nós</a
+          >
+          <a
+            href="#portfolio"
+            class="text-slate-300 hover:text-cyan-400 transition-colors"
+            >Projetos</a
+          >
+        </nav>
+
+        <!-- Redes Sociais e Botão CTA Desktop (Escondida em mobile e tablets, visível apenas em telas lg) -->
+        <div class="hidden lg:flex items-center gap-6 shrink-0">
+          <!-- Redes Sociais -->
+          <div class="flex items-center gap-4">
+            <a
+              href="https://www.instagram.com/nexyscode/"
+              target="_blank"
+              class="text-slate-400 hover:text-cyan-400 transition-transform hover:scale-110"
+              aria-label="Instagram"
+            >
+              <i data-lucide="instagram" class="w-5 h-5"></i>
+            </a>
+            <a
+              href="https://www.facebook.com/profile.php?id=61588296223381&rdid=hk5iUU8FGmAIpqrJ"
+              target="_blank"
+              class="text-slate-400 hover:text-blue-500 transition-transform hover:scale-110"
+              aria-label="Facebook"
+            >
+              <i data-lucide="facebook" class="w-5 h-5"></i>
+            </a>
+            <a
+              href="https://wa.me/5585991204971"
+              target="_blank"
+              class="text-slate-400 hover:text-green-400 transition-transform hover:scale-110"
+              aria-label="WhatsApp"
+            >
+              <!-- SVG Outline no formato do Lucide para o WhatsApp -->
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Botão Menu Mobile (Visível em mobile e tablets, escondido em telas lg) -->
+        <button
+          id="mobile-btn"
+          class="lg:hidden text-slate-300 hover:text-white transition-colors relative z-50 shrink-0"
+        >
+          <i data-lucide="menu" class="w-7 h-7"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Menu Mobile Overlay (Ajustado para alinhar ao topo com justify-start e pt-32) -->
+    <div
+      id="mobile-menu"
+      class="fixed inset-0 bg-[#070b14] flex flex-col items-center justify-start pt-32 gap-8 text-xl transition-all duration-300 z-[50] opacity-0 pointer-events-none"
+    >
+      <a
+        href="#home"
+        class="text-white hover:text-cyan-400 transition-colors mobile-link"
+        >Início</a
+      >
+      <a
+        href="#services"
+        class="text-slate-300 hover:text-cyan-400 transition-colors mobile-link"
+        >Serviços</a
+      >
+      <a
+        href="#about"
+        class="text-slate-300 hover:text-cyan-400 transition-colors mobile-link"
+        >Sobre Nós</a
+      >
+      <a
+        href="#portfolio"
+        class="text-slate-300 hover:text-cyan-400 transition-colors mobile-link"
+        >Projetos</a
+      >
+      <a
+        href="form/index.html"
+        class="mt-4 px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-bold shadow-[0_0_20px_rgba(0,240,255,0.4)] mobile-link"
+      >
+        Solicitar Orçamento
+      </a>
+
+      <!-- Redes Sociais no Menu Mobile -->
+      <div class="flex items-center gap-6 mt-4">
+        <a
+          href="https://www.instagram.com/nexyscode/"
+          target="_blank"
+          class="p-3 bg-[#0f172a] rounded-full border border-slate-700 text-slate-400 hover:text-cyan-400 hover:border-cyan-500 transition-all shadow-lg"
+        >
+          <i data-lucide="instagram" class="w-6 h-6"></i>
+        </a>
+        <a
+          href="https://www.facebook.com/profile.php?id=61588296223381&rdid=hk5iUU8FGmAIpqrJ"
+          target="_blank"
+          class="p-3 bg-[#0f172a] rounded-full border border-slate-700 text-slate-400 hover:text-blue-500 hover:border-blue-500 transition-all shadow-lg"
+        >
+          <i data-lucide="facebook" class="w-6 h-6"></i>
+        </a>
+        <a
+          href="https://wa.me/5585991204971"
+          target="_blank"
+          class="p-3 bg-[#0f172a] rounded-full border border-slate-700 text-slate-400 hover:text-green-400 hover:border-green-400 transition-all shadow-lg"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
+            />
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- SEÇÃO HERO -->
+    <section
+      id="home"
+      class="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden"
+    >
+      <div class="container mx-auto px-6 md:px-12 relative z-10">
+        <div class="flex flex-col lg:flex-row items-center gap-12">
+          <div class="w-full lg:w-3/5 text-center lg:text-left">
+            <div
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-900/30 border border-blue-700/50 text-cyan-400 text-sm font-semibold mb-6"
+            >
+              <span
+                class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"
+              ></span>
+              Inovação e Tecnologia
+            </div>
+
+            <h1
+              class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-6 break-words"
+            >
+              Transformamos Ideias em <br class="hidden md:block" />
+              <span
+                class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600"
+              >
+                Realidade Digital
+              </span>
+            </h1>
+
+            <p
+              class="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
+            >
+              Especialistas em desenvolvimento de
+              <strong>sites institucionais</strong>,
+              <strong>landing pages</strong>,
+              <strong>sistemas personalizados</strong> e
+              <strong>convites digitais interativos</strong> para impulsionar o
+              seu negócio e encantar os seus convidados.
+            </p>
+
+            <div
+              class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4"
+            >
+              <a
+                href="#services"
+                class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white rounded-lg font-bold shadow-[0_0_20px_rgba(0,240,255,0.3)] hover:shadow-[0_0_30px_rgba(0,240,255,0.6)] transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                Nossos Serviços <i data-lucide="rocket" class="w-5 h-5"></i>
+              </a>
+              <a
+                href="#contact"
+                class="w-full sm:w-auto px-8 py-4 bg-[#111827] hover:bg-[#1f2937] border border-slate-700 hover:border-cyan-500 text-white rounded-lg font-semibold transition-all duration-300 flex items-center justify-center"
+              >
+                Falar com Especialista
+              </a>
+            </div>
+          </div>
+
+          <!-- ILUSTRAÇÃO MOCKUP -->
+          <div class="w-full lg:w-2/5 mt-12 lg:mt-0 relative">
+            <div class="relative w-full max-w-lg mx-auto">
+              <!-- Fundo com brilho -->
+              <div
+                class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-2xl blur-xl opacity-30 animate-pulse"
+              ></div>
+
+              <!-- Janela Principal (Editor de Código) -->
+              <div
+                class="relative rounded-2xl bg-[#0c1220] border border-slate-700 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+              >
+                <!-- Barra superior estilo macOS -->
+                <div
+                  class="h-10 bg-[#151f32] flex items-center px-4 gap-2 border-b border-slate-700/50"
+                >
+                  <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                  <div class="ml-4 text-xs font-mono text-slate-500">
+                    app.js - NexysCode
+                  </div>
+                </div>
+
+                <!-- Conteúdo do Editor -->
+                <div
+                  class="p-6 text-sm md:text-base font-mono text-slate-300 overflow-x-auto"
+                >
+                  <div class="flex gap-4">
+                    <div
+                      class="text-slate-600 select-none text-right flex flex-col"
+                    >
+                      <span>1</span><span>2</span><span>3</span><span>4</span
+                      ><span>5</span><span>6</span><span>7</span>
+                    </div>
+                    <div class="whitespace-nowrap">
+                      <span class="text-purple-400">import</span> {
+                      <span class="text-cyan-300">NexysCode</span> }
+                      <span class="text-purple-400">from</span>
+                      <span class="text-green-400">'./future'</span
+                      >;<br /><br />
+                      <span class="text-blue-400">const</span>
+                      <span class="text-yellow-300">project</span>
+                      <span class="text-cyan-400">=</span>
+                      <span class="text-purple-400">new</span>
+                      <span class="text-cyan-300">NexysCode</span>({<br />
+                      &nbsp;&nbsp;performance:
+                      <span class="text-orange-400">100</span>,<br />
+                      &nbsp;&nbsp;design:
+                      <span class="text-green-400">'pixel-perfect'</span>,<br />
+                      &nbsp;&nbsp;seo: <span class="text-blue-400">true</span
+                      ><br />
+                      });<br /><br />
+                      <span class="text-yellow-300">project</span>.<span
+                        class="text-blue-300"
+                        >launch</span
+                      >();
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cartão Flutuante de Dashboard -->
+              <div
+                class="absolute -bottom-8 -right-4 md:-right-8 bg-[#151f32]/95 backdrop-blur-md border border-cyan-800/50 p-4 md:p-5 rounded-xl shadow-2xl w-48 md:w-56 animate-[bounce_4s_infinite]"
+              >
+                <div class="flex items-center gap-3 mb-3">
+                  <div
+                    class="p-2 md:p-3 bg-cyan-500/20 text-cyan-400 rounded-lg shrink-0"
+                  >
+                    <i
+                      data-lucide="trending-up"
+                      class="w-5 h-5 md:w-6 md:h-6"
+                    ></i>
+                  </div>
+                  <div>
+                    <div class="text-xs text-slate-400">Conversões</div>
+                    <div class="font-bold text-white text-lg md:text-xl">
+                      +245%
+                    </div>
+                  </div>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-1.5 md:h-2">
+                  <div
+                    class="bg-gradient-to-r from-blue-500 to-cyan-400 h-1.5 md:h-2 rounded-full"
+                    style="width: 85%"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Outro ícone flutuante -->
+              <div
+                class="absolute -top-6 -left-4 md:-left-6 p-3 md:p-4 bg-blue-900/40 backdrop-blur-md rounded-xl border border-blue-500/30 shadow-lg animate-[bounce_5s_infinite_reverse]"
+              >
+                <i
+                  data-lucide="rocket"
+                  class="w-6 h-6 md:w-8 md:h-8 text-cyan-300"
+                ></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEÇÃO DE SERVIÇOS -->
+    <section
+      id="services"
+      class="py-24 bg-[#0a0f1c] relative border-t border-slate-800/50"
+    >
+      <div class="container mx-auto px-6 md:px-12">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2
+            class="text-cyan-500 font-bold tracking-wider uppercase text-lg md:text-xl mb-3"
+          >
+            O que fazemos
+          </h2>
+          <h3 class="text-3xl md:text-4xl font-bold text-white mb-6">
+            Soluções Completas para o Digital
+          </h3>
+          <p class="text-slate-400 text-lg">
+            Desenvolvemos produtos digitais de alta performance, focados em
+            design moderno, velocidade e experiências inesquecíveis.
+          </p>
+        </div>
+
+        <!-- Grade 2x2 para acomodar 4 serviços perfeitamente -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Serviço 1: Sites -->
+          <div
+            class="bg-[#0f172a] p-8 rounded-2xl border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:-translate-y-2 group"
+          >
+            <div
+              class="w-14 h-14 mx-auto bg-blue-900/30 rounded-xl flex items-center justify-center mb-6 group-hover:bg-cyan-900/40 transition-colors"
+            >
+              <i
+                data-lucide="monitor-smartphone"
+                class="w-7 h-7 text-cyan-400"
+              ></i>
+            </div>
+            <h4 class="text-2xl font-bold text-white mb-4">
+              Sites Institucionais
+            </h4>
+            <p class="text-slate-400 mb-6 line-clamp-3">
+              Criação de sites profissionais, responsivos e otimizados para o
+              Google (SEO). A vitrine perfeita para sua empresa transmitir
+              credibilidade e atrair novos clientes.
+            </p>
+            <ul class="space-y-2 mb-8 text-sm text-slate-300">
+              <li class="flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-cyan-500"></i>
+                Design Responsivo (Mobile First)
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-cyan-500"></i>
+                Otimização SEO
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-cyan-500"></i>
+                Painel de Administração
+              </li>
+            </ul>
+          </div>
+
+          <!-- Serviço 2: Landing Pages -->
+          <div
+            class="bg-[#0f172a] p-8 rounded-2xl border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:-translate-y-2 group"
+          >
+            <div
+              class="w-14 h-14 mx-auto bg-blue-900/30 rounded-xl flex items-center justify-center mb-6 group-hover:bg-cyan-900/40 transition-colors"
+            >
+              <i
+                data-lucide="layout-template"
+                class="w-7 h-7 text-cyan-400"
+              ></i>
+            </div>
+            <h4 class="text-2xl font-bold text-white mb-4">Landing Pages</h4>
+            <p class="text-slate-400 mb-6 line-clamp-3">
+              Páginas de altíssima conversão desenhadas estrategicamente para
+              campanhas de marketing, lançamentos de produtos e captação de
+              leads.
+            </p>
+            <ul class="space-y-2 mb-8 text-sm text-slate-300">
+              <li class="flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-cyan-500"></i>
+                Foco em Conversão e Vendas
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-cyan-500"></i>
+                Carregamento Ultrarrápido
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-cyan-500"></i>
+                Copywriting Estratégico
+              </li>
+            </ul>
+          </div>
+
+          <!-- Serviço 3: Sistemas -->
+          <div
+            class="bg-[#0f172a] p-8 rounded-2xl border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:-translate-y-2 group"
+          >
+            <div
+              class="w-14 h-14 mx-auto bg-blue-900/30 rounded-xl flex items-center justify-center mb-6 group-hover:bg-cyan-900/40 transition-colors"
+            >
+              <i data-lucide="layers" class="w-7 h-7 text-cyan-400"></i>
+            </div>
+            <h4 class="text-2xl font-bold text-white mb-4">
+              Sistemas Personalizados
+            </h4>
+            <p class="text-slate-400 mb-6 line-clamp-3">
+              Sistemas web sob medida para automatizar processos internos da sua
+              empresa. De CRMs a painéis de gestão, criamos a ferramenta que
+              necessita.
+            </p>
+            <ul class="space-y-2 mb-8 text-sm text-slate-300">
+              <li class="flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-cyan-500"></i>
+                Arquitetura Escalável
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-cyan-500"></i>
+                Integração com APIs
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-cyan-500"></i>
+                Segurança de Dados
+              </li>
+            </ul>
+          </div>
+
+          <!-- Serviço 4: Convites Digitais -->
+          <div
+            class="bg-[#0f172a] p-8 rounded-2xl border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:-translate-y-2 group"
+          >
+            <div
+              class="w-14 h-14 mx-auto bg-blue-900/30 rounded-xl flex items-center justify-center mb-6 group-hover:bg-cyan-900/40 transition-colors"
+            >
+              <i data-lucide="sparkles" class="w-7 h-7 text-cyan-400"></i>
+            </div>
+            <h4 class="text-2xl font-bold text-white mb-4">
+              Convites Digitais
+            </h4>
+            <p class="text-slate-400 mb-6 line-clamp-3">
+              Convites modernos, interativos e sustentáveis para casamentos,
+              aniversários e eventos corporativos. Surpreenda antes mesmo da
+              festa começar.
+            </p>
+            <ul class="space-y-2 mb-8 text-sm text-slate-300">
+              <li class="flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-cyan-500"></i>
+                Confirmação de Presença (RSVP)
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-cyan-500"></i>
+                Localização Direta no Maps
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-cyan-500"></i>
+                Botões Interativos (Lista de presentes)
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROCESSO DE TRABALHO / SOBRE -->
+    <section id="about" class="py-24 bg-[#070b14] relative">
+      <div class="container mx-auto px-6 md:px-12">
+        <div class="flex flex-col lg:flex-row items-center gap-16">
+          <div class="w-full lg:w-1/2">
+            <div class="grid grid-cols-2 gap-4">
+              <div
+                class="bg-[#0f172a] p-6 rounded-2xl border border-slate-800 text-center flex flex-col justify-center"
+              >
+                <h5 class="text-4xl font-bold text-cyan-400 mb-2">+50</h5>
+                <p class="text-sm text-slate-400">Projetos Entregues</p>
+              </div>
+              <div
+                class="bg-[#0a0f1c] p-6 rounded-2xl border border-slate-800 text-center flex flex-col justify-center"
+              >
+                <h5 class="text-4xl font-bold text-blue-500 mb-2">99%</h5>
+                <p class="text-sm text-slate-400">Performance (Lighthouse)</p>
+              </div>
+              <div
+                class="bg-[#0a0f1c] p-6 rounded-2xl border border-slate-800 text-center flex flex-col justify-center"
+              >
+                <h5 class="text-4xl font-bold text-blue-500 mb-2">100%</h5>
+                <p class="text-sm text-slate-400">Satisfação</p>
+              </div>
+              <div
+                class="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 p-6 rounded-2xl border border-blue-800/50 text-center flex flex-col justify-center"
+              >
+                <h5 class="text-4xl font-bold text-white mb-2">24/7</h5>
+                <p class="text-sm text-slate-300">Suporte Dedicado</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full lg:w-1/2 text-center lg:text-left">
+            <h2
+              class="text-cyan-500 font-bold tracking-wider uppercase text-sm mb-2"
+            >
+              Por que a Nexys Code?
+            </h2>
+            <h3 class="text-3xl md:text-4xl font-bold text-white mb-6">
+              Código limpo, design impactante e foco em resultados.
+            </h3>
+            <p class="text-slate-400 mb-8 text-lg">
+              Na Nexys Code, nós arquitetamos experiências digitais. A nossa
+              metodologia une as tecnologias mais modernas do mercado com um
+              design totalmente centrado no utilizador.
+            </p>
+
+            <div class="space-y-6">
+              <div
+                class="flex flex-col lg:flex-row items-center lg:items-start gap-4"
+              >
+                <div
+                  class="w-12 h-12 rounded-full bg-blue-900/30 flex items-center justify-center shrink-0"
+                >
+                  <span class="text-cyan-400 font-bold">1</span>
+                </div>
+                <div>
+                  <h4 class="text-white font-bold text-xl mb-1">
+                    Planejamento Estratégico
+                  </h4>
+                  <p class="text-slate-400">
+                    Entendemos o seu negócio a fundo para criar uma solução que
+                    realmente resolva os seus problemas ou exalte o seu evento.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="flex flex-col lg:flex-row items-center lg:items-start gap-4"
+              >
+                <div
+                  class="w-12 h-12 rounded-full bg-blue-900/30 flex items-center justify-center shrink-0"
+                >
+                  <span class="text-cyan-400 font-bold">2</span>
+                </div>
+                <div>
+                  <h4 class="text-white font-bold text-xl mb-1">
+                    Desenvolvimento Ágil
+                  </h4>
+                  <p class="text-slate-400">
+                    Utilizamos tecnologias modernas para garantir velocidade,
+                    segurança e fluidez, seja num portal corporativo ou num
+                    convite virtual.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="flex flex-col lg:flex-row items-center lg:items-start gap-4"
+              >
+                <div
+                  class="w-12 h-12 rounded-full bg-blue-900/30 flex items-center justify-center shrink-0"
+                >
+                  <span class="text-cyan-400 font-bold">3</span>
+                </div>
+                <div>
+                  <h4 class="text-white font-bold text-xl mb-1">
+                    Entrega e Manutenção
+                  </h4>
+                  <p class="text-slate-400">
+                    O seu projeto no ar com acompanhamento contínuo e suporte
+                    técnico para futuras evoluções.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEÇÃO PORTFÓLIO / PROJETOS (CARROSSEL) -->
+    <section
+      id="portfolio"
+      class="py-24 bg-[#0a0f1c] relative border-t border-slate-800/50"
+    >
+      <div class="container mx-auto px-6 md:px-12">
+        <!-- TÍTULO CENTRALIZADO -->
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2
+            class="text-cyan-500 font-bold tracking-wider uppercase text-sm mb-2"
+          >
+            Nosso Portfólio
+          </h2>
+          <h3 class="text-3xl md:text-4xl font-bold text-white">
+            Projetos em Destaque
+          </h3>
+        </div>
+
+        <!-- WRAPPER DO CARROSSEL COM BOTÕES NAS LATERAIS -->
+        <div class="relative w-full group/carousel">
+          <!-- Botão de Navegação: Anterior -->
+          <button
+            id="prev-btn"
+            class="hidden md:flex absolute -left-4 lg:-left-6 top-1/2 -translate-y-[calc(50%+1rem)] z-10 p-3 rounded-full bg-[#0f172a] border border-slate-700 hover:border-cyan-500 hover:text-cyan-400 text-white transition-all duration-300 shadow-lg hover:shadow-[0_0_15px_rgba(0,240,255,0.3)]"
+          >
+            <i data-lucide="chevron-left" class="w-6 h-6"></i>
+          </button>
+
+          <!-- Botão de Navegação: Próximo -->
+          <button
+            id="next-btn"
+            class="hidden md:flex absolute -right-4 lg:-right-6 top-1/2 -translate-y-[calc(50%+1rem)] z-10 p-3 rounded-full bg-[#0f172a] border border-slate-700 hover:border-cyan-500 hover:text-cyan-400 text-white transition-all duration-300 shadow-lg hover:shadow-[0_0_15px_rgba(0,240,255,0.3)]"
+          >
+            <i data-lucide="chevron-right" class="w-6 h-6"></i>
+          </button>
+
+          <!-- Container do Carrossel -->
+          <div
+            id="carousel-container"
+            class="flex gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-8 scroll-smooth"
+          >
+            <!-- Projeto 1 (Neo Barber) -->
+            <div
+              class="snap-start shrink-0 w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.3333%-1rem)] bg-[#0f172a] rounded-2xl border border-slate-800 overflow-hidden group hover:border-blue-500/50 transition-colors duration-300"
+            >
+              <div class="h-52 bg-slate-800 relative overflow-hidden">
+                <img
+                  src="assets/img/neobarber.png"
+                  alt="Neo Barber"
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                <div
+                  class="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent opacity-60"
+                ></div>
+                <div
+                  class="absolute top-4 right-4 px-3 py-1 bg-[#0c1220]/80 backdrop-blur-md text-blue-400 text-xs font-bold rounded-full border border-blue-900/50 shadow-lg"
+                >
+                  Site Institucional
+                </div>
+              </div>
+              <div class="p-6 relative">
+                <h4
+                  class="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors"
+                >
+                  Neo Barber
+                </h4>
+                <p class="text-slate-400 text-sm mb-6 line-clamp-2">
+                  Site moderno para barbearia premium na Aldeota, destacando
+                  planos de assinatura e agendamento online.
+                </p>
+                <button
+                  onclick="openModal(0)"
+                  class="inline-flex items-center gap-2 text-sm font-bold text-white hover:text-blue-400 transition-colors group/link cursor-pointer focus:outline-none"
+                >
+                  Ver detalhes
+                  <i
+                    data-lucide="arrow-right"
+                    class="w-4 h-4 group-hover/link:translate-x-1 transition-transform"
+                  ></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Projeto 2 (Pinheiro & Silva) -->
+            <div
+              class="snap-start shrink-0 w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.3333%-1rem)] bg-[#0f172a] rounded-2xl border border-slate-800 overflow-hidden group hover:border-blue-500/50 transition-colors duration-300"
+            >
+              <div class="h-52 bg-slate-800 relative overflow-hidden">
+                <img
+                  src="assets/img/pinheiro.png"
+                  alt="Pinheiro & Silva Advogados"
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                <div
+                  class="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent opacity-60"
+                ></div>
+                <div
+                  class="absolute top-4 right-4 px-3 py-1 bg-[#0c1220]/80 backdrop-blur-md text-blue-400 text-xs font-bold rounded-full border border-blue-900/50 shadow-lg"
+                >
+                  Site Institucional
+                </div>
+              </div>
+              <div class="p-6 relative">
+                <h4
+                  class="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors"
+                >
+                  Pinheiro & Silva Advogados
+                </h4>
+                <p class="text-slate-400 text-sm mb-6 line-clamp-2">
+                  Site sofisticado focado em defesa jurídica estratégica nas
+                  áreas de Direito Bancário, Civil, Trabalhista e Consumidor.
+                </p>
+                <button
+                  onclick="openModal(1)"
+                  class="inline-flex items-center gap-2 text-sm font-bold text-white hover:text-blue-400 transition-colors group/link cursor-pointer focus:outline-none"
+                >
+                  Ver detalhes
+                  <i
+                    data-lucide="arrow-right"
+                    class="w-4 h-4 group-hover/link:translate-x-1 transition-transform"
+                  ></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Projeto 3 (Criatisa) -->
+            <div
+              class="snap-start shrink-0 w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.3333%-1rem)] bg-[#0f172a] rounded-2xl border border-slate-800 overflow-hidden group hover:border-pink-500/50 transition-colors duration-300"
+            >
+              <div class="h-52 bg-slate-800 relative overflow-hidden">
+                <img
+                  src="assets/img/criatisa.jpeg"
+                  alt="Criatisa Gráfica"
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                <div
+                  class="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent opacity-60"
+                ></div>
+                <div
+                  class="absolute top-4 right-4 px-3 py-1 bg-[#0c1220]/80 backdrop-blur-md text-pink-400 text-xs font-bold rounded-full border border-pink-900/50 shadow-lg"
+                >
+                  Site & Sistema
+                </div>
+              </div>
+              <div class="p-6 relative">
+                <h4
+                  class="text-xl font-bold text-white mb-2 group-hover:text-pink-400 transition-colors"
+                >
+                  Criatisa Gráfica Rápida
+                </h4>
+                <p class="text-slate-400 text-sm mb-6 line-clamp-2">
+                  Site vibrante integrado com um sistema leve sob medida para
+                  gerenciar o catálogo digital de produtos e personalizados.
+                </p>
+                <button
+                  onclick="openModal(2)"
+                  class="inline-flex items-center gap-2 text-sm font-bold text-white hover:text-pink-400 transition-colors group/link cursor-pointer focus:outline-none"
+                >
+                  Ver detalhes
+                  <i
+                    data-lucide="arrow-right"
+                    class="w-4 h-4 group-hover/link:translate-x-1 transition-transform"
+                  ></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Projeto 4 (Missão 5 Anos) -->
+            <div
+              class="snap-start shrink-0 w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.3333%-1rem)] bg-[#0f172a] rounded-2xl border border-slate-800 overflow-hidden group hover:border-orange-500/50 transition-colors duration-300"
+            >
+              <div class="h-52 bg-slate-800 relative overflow-hidden">
+                <img
+                  src="assets/img/conviteleo.png"
+                  alt="Aniversário Missão 5 Anos"
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                <div
+                  class="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent opacity-60"
+                ></div>
+                <div
+                  class="absolute top-4 right-4 px-3 py-1 bg-[#0c1220]/80 backdrop-blur-md text-orange-400 text-xs font-bold rounded-full border border-orange-900/50 shadow-lg"
+                >
+                  Convite Digital
+                </div>
+              </div>
+              <div class="p-6 relative">
+                <h4
+                  class="text-xl font-bold text-white mb-2 group-hover:text-orange-400 transition-colors"
+                >
+                  Missão: 5 Anos do Léo
+                </h4>
+                <p class="text-slate-400 text-sm mb-6 line-clamp-2">
+                  Web convite interativo com temática espacial, cronograma do
+                  evento, mapa e confirmação de presença (RSVP).
+                </p>
+                <button
+                  onclick="openModal(3)"
+                  class="inline-flex items-center gap-2 text-sm font-bold text-white hover:text-orange-400 transition-colors group/link cursor-pointer focus:outline-none"
+                >
+                  Ver detalhes
+                  <i
+                    data-lucide="arrow-right"
+                    class="w-4 h-4 group-hover/link:translate-x-1 transition-transform"
+                  ></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Projeto 5 (Casamento) -->
+            <div
+              class="snap-start shrink-0 w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.3333%-1rem)] bg-[#0f172a] rounded-2xl border border-slate-800 overflow-hidden group hover:border-pink-400/50 transition-colors duration-300"
+            >
+              <div class="h-52 bg-slate-800 relative overflow-hidden">
+                <img
+                  src="assets/img/casamento.png"
+                  alt="Casamento João e Maria"
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                <div
+                  class="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent opacity-60"
+                ></div>
+                <div
+                  class="absolute top-4 right-4 px-3 py-1 bg-[#0c1220]/80 backdrop-blur-md text-pink-400 text-xs font-bold rounded-full border border-pink-900/50 shadow-lg"
+                >
+                  Convite Digital
+                </div>
+              </div>
+              <div class="p-6 relative">
+                <h4
+                  class="text-xl font-bold text-white mb-2 group-hover:text-pink-400 transition-colors"
+                >
+                  Casamento João & Maria
+                </h4>
+                <p class="text-slate-400 text-sm mb-6 line-clamp-2">
+                  Convite digital elegante e interativo com contagem regressiva,
+                  roteiro, mapa e confirmação de presença (RSVP).
+                </p>
+                <button
+                  onclick="openModal(4)"
+                  class="inline-flex items-center gap-2 text-sm font-bold text-white hover:text-pink-400 transition-colors group/link cursor-pointer focus:outline-none"
+                >
+                  Ver detalhes
+                  <i
+                    data-lucide="arrow-right"
+                    class="w-4 h-4 group-hover/link:translate-x-1 transition-transform"
+                  ></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODAL DE PROJETO (Janela Flutuante) -->
+    <div
+      id="project-modal"
+      class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 opacity-0 pointer-events-none transition-all duration-300"
+    >
+      <!-- Overlay escuro de fundo -->
+      <div
+        class="absolute inset-0 bg-[#04070d]/90 backdrop-blur-sm"
+        onclick="closeModal()"
+      ></div>
+
+      <!-- Conteúdo do Modal -->
+      <div
+        id="modal-content-box"
+        class="relative bg-[#0f172a] border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col md:flex-row transform scale-95 transition-transform duration-300"
+      >
+        <!-- Botão Fechar -->
+        <button
+          onclick="closeModal()"
+          class="absolute top-4 right-4 p-2 bg-[#04070d]/80 rounded-full text-slate-400 hover:text-white hover:bg-red-500 z-10 transition-all focus:outline-none"
+        >
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+
+        <!-- Imagem do Modal -->
+        <div
+          class="w-full md:w-1/2 h-64 md:h-auto bg-[#070b14] relative shrink-0"
+        >
+          <img
+            id="modal-img"
+            src=""
+            alt="Projeto Detalhe"
+            class="w-full h-full object-cover"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-transparent to-[#0f172a] hidden md:block"
+          ></div>
+          <div
+            class="absolute inset-0 bg-gradient-to-b from-transparent to-[#0f172a] md:hidden"
+          ></div>
+        </div>
+
+        <!-- Informações do Modal -->
+        <div class="w-full md:w-1/2 p-6 md:p-10 flex flex-col justify-center">
+          <div
+            id="modal-tag"
+            class="inline-flex px-4 py-1.5 bg-blue-900/30 text-cyan-400 text-xs font-bold tracking-wider uppercase rounded-full border border-blue-900/50 w-max mb-4"
+          >
+            Categoria
+          </div>
+          <h3
+            id="modal-title"
+            class="text-3xl font-extrabold text-white mb-4 leading-tight"
+          >
+            Título do Projeto
+          </h3>
+          <p
+            id="modal-desc"
+            class="text-slate-400 mb-8 leading-relaxed text-sm md:text-base"
+          >
+            Descrição detalhada do projeto será carregada aqui.
+          </p>
+
+          <h4
+            class="text-white font-semibold text-sm uppercase tracking-wider mb-3"
+          >
+            Tecnologias Utilizadas
+          </h4>
+          <div id="modal-techs" class="flex flex-wrap gap-2 mb-8">
+            <!-- As tecnologias entram aqui via JavaScript -->
+          </div>
+
+          <a
+            id="modal-link"
+            href="#"
+            target="_blank"
+            class="w-full sm:w-max px-8 py-3.5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white rounded-lg font-bold text-center transition-all shadow-[0_0_20px_rgba(0,240,255,0.3)] hover:shadow-[0_0_30px_rgba(0,240,255,0.5)]"
+          >
+            Acessar Projeto Vivo
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEÇÃO CALL TO ACTION -->
+    <section class="py-20 relative overflow-hidden">
+      <div
+        class="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-[#0a0f1c] z-0"
+      ></div>
+      <div
+        class="absolute top-0 right-0 w-1/2 h-full bg-[url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-20 mix-blend-overlay z-0"
+      ></div>
+
+      <div
+        class="container mx-auto px-6 md:px-12 relative z-10 flex flex-col md:flex-row items-center justify-between gap-8"
+      >
+        <div class="max-w-2xl">
+          <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">
+            Pronto para transformar a sua presença digital?
+          </h2>
+          <p class="text-blue-200 text-lg">
+            Faça um orçamento sem compromisso e descubra como a Nexys Code pode
+            ajudar o seu negócio a crescer na internet.
+          </p>
+        </div>
+        <div>
+          <a
+            href="form/index.html"
+            class="px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-[#070b14] rounded-lg font-bold text-lg shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all duration-300 whitespace-nowrap inline-flex items-center gap-2 hover:scale-105"
+          >
+            Iniciar Projeto <i data-lucide="chevron-right" class="w-5 h-5"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- RODAPÉ -->
+    <footer
+      id="contact"
+      class="bg-[#04070d] pt-20 pb-10 border-t border-slate-800/50"
+    >
+      <div class="container mx-auto px-6 md:px-12">
+        <div
+          class="flex flex-col items-center justify-center mb-12 text-center"
+        >
+          <!-- Marca -->
+          <div class="flex flex-col items-center max-w-md">
+            <div class="relative inline-flex flex-col items-center mb-6">
+              <!-- Ícone posicionado absolutamente para não empurrar o texto -->
+              <div class="absolute right-full top-0 mr-2">
+                <i data-lucide="code-2" class="text-cyan-400 w-8 h-8 -mt-1"></i>
+              </div>
+
+              <span
+                class="text-2xl font-black tracking-widest text-white leading-none mb-1.5"
+                >NEXYS</span
+              >
+              <span
+                class="text-[0.65rem] tracking-[0.3em] text-cyan-400 font-bold flex items-center gap-1"
+              >
+                <span class="w-3 h-[1px] bg-cyan-800"></span>
+                CODE
+                <span class="w-3 h-[1px] bg-cyan-800"></span>
+              </span>
+            </div>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Agência de tecnologia focada em soluções web inteligentes, design
+              de alta performance e engenharia de software sob medida.
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="pt-8 border-t border-slate-800 text-center text-slate-500 text-sm flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8"
+        >
+          <p>
+            &copy; <span id="current-year"></span> Nexys Code. Todos os direitos
+            reservados.
+          </p>
+          <div class="flex gap-4">
+            <a href="#" class="hover:text-cyan-400 transition-colors"
+              >Termos de Uso</a
+            >
+            <a href="#" class="hover:text-cyan-400 transition-colors"
+              >Política de Privacidade</a
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- SCRIPTS DE LÓGICA -->
+    <script>
+      // Iniciar ícones do Lucide
+      lucide.createIcons();
+
+      // Ano atual no rodapé
+      document.getElementById("current-year").textContent =
+        new Date().getFullYear();
+
+      // Efeito de rolagem no Menu (Cabeçalho)
+      const header = document.getElementById("main-header");
+      window.addEventListener("scroll", () => {
+        if (isMenuOpen) return; // Não alterar o cabeçalho se o menu mobile estiver aberto
+
+        if (window.scrollY > 20) {
+          header.className =
+            "fixed top-0 w-full z-[60] transition-all duration-300 bg-[#0a0f1c]/90 backdrop-blur-md py-4 shadow-[0_4px_30px_rgba(0,0,0,0.5)]";
+        } else {
+          header.className =
+            "fixed top-0 w-full z-[60] transition-all duration-300 bg-transparent py-6";
+        }
+      });
+
+      // Lógica do Menu Mobile
+      const mobileBtn = document.getElementById("mobile-btn");
+      const mobileMenu = document.getElementById("mobile-menu");
+      const mobileLinks = document.querySelectorAll(".mobile-link");
+      let isMenuOpen = false;
+
+      function toggleMenu() {
+        isMenuOpen = !isMenuOpen;
+
+        if (isMenuOpen) {
+          // Abrir Menu: Muda a opacidade e ativa os eventos de clique (alterado para justify-start pt-32)
+          mobileMenu.className =
+            "fixed inset-0 bg-[#070b14] flex flex-col items-center justify-start pt-32 gap-8 text-xl transition-all duration-300 z-[50] opacity-100 pointer-events-auto";
+          mobileBtn.innerHTML =
+            '<i data-lucide="x" class="w-8 h-8 text-cyan-400"></i>'; // Muda ícone para um X azul ciano maior
+
+          // Torna o cabeçalho com fundo escuro para não vazar conteúdo por trás dele
+          header.className =
+            "fixed top-0 w-full z-[60] transition-all duration-300 bg-[#070b14] py-4";
+
+          // Impede o utilizador de fazer scroll na página por trás do menu
+          document.body.style.overflow = "hidden";
+        } else {
+          // Fechar Menu: Fica invisível e desativa eventos de clique (alterado para justify-start pt-32)
+          mobileMenu.className =
+            "fixed inset-0 bg-[#070b14] flex flex-col items-center justify-start pt-32 gap-8 text-xl transition-all duration-300 z-[50] opacity-0 pointer-events-none";
+          mobileBtn.innerHTML = '<i data-lucide="menu" class="w-7 h-7"></i>'; // Restaura o hamburger normal
+
+          // Devolve a capacidade de fazer scroll à página
+          document.body.style.overflow = "";
+
+          // Restaura as cores do cabeçalho
+          if (window.scrollY > 20) {
+            header.className =
+              "fixed top-0 w-full z-[60] transition-all duration-300 bg-[#0a0f1c]/90 backdrop-blur-md py-4 shadow-[0_4px_30px_rgba(0,0,0,0.5)]";
+          } else {
+            header.className =
+              "fixed top-0 w-full z-[60] transition-all duration-300 bg-transparent py-6";
+          }
+        }
+        lucide.createIcons(); // Atualiza os ícones SVG modificados
+      }
+
+      mobileBtn.addEventListener("click", toggleMenu);
+
+      // Fechar menu mobile ao clicar numa ligação
+      mobileLinks.forEach((link) => {
+        link.addEventListener("click", () => {
+          if (isMenuOpen) toggleMenu();
+        });
+      });
+
+      // ==========================================
+      // LÓGICA DO CARROSSEL
+      // ==========================================
+      const carousel = document.getElementById("carousel-container");
+      const prevBtn = document.getElementById("prev-btn");
+      const nextBtn = document.getElementById("next-btn");
+
+      if (carousel && prevBtn && nextBtn) {
+        // Função para pegar a largura exata que um card está ocupando + a distância entre eles (gap)
+        const getScrollAmount = () => {
+          const card = carousel.querySelector(".snap-start");
+          // Pega a largura do card na tela + 24px que é o valor da classe 'gap-6' do container
+          return card.offsetWidth + 24;
+        };
+
+        // Função para rolar para o próximo cartão (com verificação de limite)
+        const scrollNext = () => {
+          // Largura máxima que podemos rolar = (Tamanho total interno) - (Tamanho visível da tela)
+          const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+
+          // Se já estivermos no final (com uma margem de segurança de 10px), volta para o início
+          if (carousel.scrollLeft >= maxScroll - 10) {
+            carousel.scrollTo({ left: 0, behavior: "smooth" });
+          } else {
+            carousel.scrollBy({ left: getScrollAmount(), behavior: "smooth" });
+          }
+        };
+
+        // Função para rolar para o cartão anterior (com verificação de limite)
+        const scrollPrev = () => {
+          const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+
+          // Se já estivermos no início (margem de 10px), vai direto para o final
+          if (carousel.scrollLeft <= 10) {
+            carousel.scrollTo({ left: maxScroll, behavior: "smooth" });
+          } else {
+            carousel.scrollBy({ left: -getScrollAmount(), behavior: "smooth" });
+          }
+        };
+
+        // Eventos dos Botões
+        prevBtn.addEventListener("click", () => {
+          scrollPrev();
+          resetAutoPlay(); // Reinicia o timer se o utilizador clicar manualmente
+        });
+
+        nextBtn.addEventListener("click", () => {
+          scrollNext();
+          resetAutoPlay(); // Reinicia o timer se o utilizador clicar manualmente
+        });
+
+        // ----------------------------------------
+        // Lógica de Auto-play (A cada 15 segundos)
+        // ----------------------------------------
+        let autoPlayInterval = setInterval(scrollNext, 15000);
+
+        // Função para reiniciar o timer (impede que mude sozinho logo após o utilizador clicar)
+        const resetAutoPlay = () => {
+          clearInterval(autoPlayInterval);
+          autoPlayInterval = setInterval(scrollNext, 15000);
+        };
+
+        // BÓNUS: Pausar o auto-play se o utilizador tiver o rato por cima do carrossel
+        carousel.addEventListener("mouseenter", () =>
+          clearInterval(autoPlayInterval),
+        );
+        carousel.addEventListener("mouseleave", () => {
+          autoPlayInterval = setInterval(scrollNext, 15000);
+        });
+      }
+
+      // ==========================================
+      // LÓGICA DO MODAL DE PROJETOS
+      // ==========================================
+
+      // Base de dados dos clientes oficiais
+      const projectsData = [
+        {
+          title: "Neo Barber",
+          tag: "Site Institucional",
+          img: "assets/img/neobarber.png",
+          desc: "Desenvolvimento de um site moderno e focado em conversão para a Neo Barber, uma barbearia premium localizada na Aldeota. O projeto destaca o clube de assinaturas exclusivo e facilita o agendamento de horários, unindo a tradição da barbearia clássica com tendências digitais modernas.",
+          techs: ["HTML/CSS", "JavaScript", "Mobile First", "UI/UX Design"],
+          link: "https://neobarber.com/",
+        },
+        {
+          title: "Pinheiro & Silva Advogados",
+          tag: "Site Institucional",
+          img: "assets/img/pinheiro.png",
+          desc: "Desenvolvimento de um site profissional e elegante para o escritório Pinheiro & Silva Consultoria e Assessoria Jurídica. O projeto destaca a autoridade do escritório nas suas principais áreas de atuação: Direito Bancário, Civil, Trabalhista e do Consumidor, oferecendo uma navegação fluida e direta para os clientes entrarem em contacto com especialistas.",
+          techs: ["Web Design", "Mobile Responsivo", "UX/UI", "SEO Básico"],
+          link: "https://advogadospinheirosilva.adv.br/",
+        },
+        {
+          title: "Criatisa Gráfica Rápida",
+          tag: "Site & Catálogo Web",
+          img: "assets/img/criatisa.jpeg",
+          desc: "Projeto duplo envolvendo o desenvolvimento do site institucional e um sistema sob medida para a gráfica Criatisa. Criamos uma vitrine digital atraente para os seus serviços de personalizados e implementamos um painel de gestão leve para que a equipa possa atualizar facilmente o seu catálogo digital de produtos sem depender de terceiros.",
+          techs: [
+            "Frontend Responsivo",
+            "Painel Administrativo",
+            "Gestão de Produtos",
+            "UI Design",
+          ],
+          link: "https://jonathan-albuquerque-dev.github.io/creatisa/",
+        },
+        {
+          title: "Missão: 5 Anos do Léo",
+          tag: "Convite Digital",
+          img: "assets/img/conviteleo.png",
+          desc: "Desenvolvimento de um web convite totalmente personalizado e interativo com a temática espacial para o aniversário de 5 anos do Léo. O projeto conta com o cronograma da festa, mapa integrado direcionando para o local do evento e um sistema de confirmação de presença (RSVP) prático e direto, facilitando a organização para os pais.",
+          techs: [
+            "HTML/CSS/JS Puro",
+            "Animações Web",
+            "UI Temática",
+            "Mobile First",
+          ],
+          link: "https://jonathan-albuquerque-dev.github.io/aniversario-exemplo/",
+        },
+        {
+          title: "Casamento João & Maria",
+          tag: "Convite Digital",
+          img: "assets/img/casamento.png",
+          desc: "Desenvolvimento de um web convite elegante e romântico para o casamento de João e Maria. O projeto inclui uma contagem regressiva animada (timer) em tempo real para o grande dia, a história do casal, cronograma, mapa integrado para o local da cerimônia e um sistema de confirmação de presença prático para os convidados.",
+          techs: [
+            "HTML/CSS/JS",
+            "Contador (Timer)",
+            "Design Romântico",
+            "Mobile First",
+          ],
+          link: "https://jonathan-albuquerque-dev.github.io/casamento-exemplo/",
+        },
+      ];
+
+      const modal = document.getElementById("project-modal");
+      const modalContentBox = document.getElementById("modal-content-box");
+
+      // Elementos internos do modal
+      const modalImg = document.getElementById("modal-img");
+      const modalTitle = document.getElementById("modal-title");
+      const modalTag = document.getElementById("modal-tag");
+      const modalDesc = document.getElementById("modal-desc");
+      const modalTechs = document.getElementById("modal-techs");
+      const modalLink = document.getElementById("modal-link");
+
+      function openModal(index) {
+        const project = projectsData[index];
+
+        // Popula os dados
+        modalImg.src = project.img;
+        modalTitle.textContent = project.title;
+        modalTag.textContent = project.tag;
+        modalDesc.textContent = project.desc;
+        modalLink.href = project.link;
+
+        // Gera as tags de tecnologias dinamicamente
+        modalTechs.innerHTML = "";
+        project.techs.forEach((tech) => {
+          const span = document.createElement("span");
+          span.className =
+            "px-3 py-1 bg-slate-800 text-slate-300 text-xs rounded-md border border-slate-700";
+          span.textContent = tech;
+          modalTechs.appendChild(span);
+        });
+
+        // Mostra o Modal (Animações do Tailwind)
+        modal.classList.remove("opacity-0", "pointer-events-none");
+        modalContentBox.classList.remove("scale-95");
+        modalContentBox.classList.add("scale-100");
+
+        // Trava o scroll da página principal
+        document.body.style.overflow = "hidden";
+
+        // Se o carrossel estivesse a rodar, pausamos temporariamente enquanto o modal está aberto
+        if (typeof resetAutoPlay !== "undefined")
+          clearInterval(autoPlayInterval);
+      }
+
+      function closeModal() {
+        // Esconde o Modal
+        modal.classList.add("opacity-0", "pointer-events-none");
+        modalContentBox.classList.remove("scale-100");
+        modalContentBox.classList.add("scale-95");
+
+        // Libera o scroll da página
+        document.body.style.overflow = "";
+
+        // Retoma o autoplay do carrossel ao fechar
+        if (typeof resetAutoPlay !== "undefined") resetAutoPlay();
+      }
+    </script>
+  </body>
+</html>
